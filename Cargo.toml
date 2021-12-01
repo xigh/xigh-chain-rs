@@ -1,7 +1,7 @@
 [package]
 name = "xigh-chain-rs"
 version = "0.1.0"
-edition = "2021"
+edition = "2018"
 
 [dependencies]
 chrono = "0.4"
