@@ -29,9 +29,7 @@ fn hash_hex(hash: &Vec<u8>) -> String {
 fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous_hash: &Vec<u8>, nonce: usize) -> Vec<u8> {
     let mut hasher = Sha256::new();
 
-    // println!("### computing hash for index {}, nonce={}", index, nonce);
-
-    // maybe we can do the same without format!() ?
+    // maybe we can do the same, faster, without format!() ?
     hasher.update(format!("{}", index));
     hasher.update(format!("{}", timestamp));
     hasher.update(format!("{:?}", data));
