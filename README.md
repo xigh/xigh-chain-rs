@@ -1,4 +1,4 @@
-### simple naive blockchain implementation in Rust
+### Simple naive blockchain implementation in Rust:
 
 Inspired by these very interesting [videos on youtube](https://www.youtube.com/watch?v=zVqczFZr124)
 
@@ -6,7 +6,7 @@ You can find the JavaScript implementation here :
 
 [https://github.com/Savjee/SavjeeCoin](https://github.com/Savjee/SavjeeCoin)
 
-### usage
+### Usage:
 
 ```bash
 git clone https://github.com/xigh/xigh_chain_rs
