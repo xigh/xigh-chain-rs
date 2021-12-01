@@ -58,7 +58,7 @@ impl Block {
     }
 
     fn mine(self: &mut Self, rng: &mut ThreadRng, difficulty: usize) -> bool {
-        while !is_bytes_start_with_nth_zeros(&self.hash, difficulty) {
+        while !do_bytes_start_with_nth_zeros(&self.hash, difficulty) {
             self.nonce = rng.next_u64() as usize;
             self.hash = self.compute_hash();
         }
@@ -67,7 +67,7 @@ impl Block {
 }
 
 // todo: put this elsewhere
-fn is_bytes_start_with_nth_zeros(bytes: &Vec<u8>, n: usize) -> bool {
+fn do_bytes_start_with_nth_zeros(bytes: &Vec<u8>, n: usize) -> bool {
     if n >= bytes.len() {
         return false
     }
