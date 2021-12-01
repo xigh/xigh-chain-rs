@@ -1,6 +1,6 @@
 ### simple naive blockchain implementation in Rust
 
-Based on these very interesting [videos on youtube](https://www.youtube.com/watch?v=zVqczFZr124)
+Inspired by these very interesting [videos on youtube](https://www.youtube.com/watch?v=zVqczFZr124)
 
 You can find the JavaScript implementation here :
 
