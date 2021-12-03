@@ -4,13 +4,51 @@ use rand::prelude::*;
 
 const DIFFICULTY:usize = 2;
 
+pub struct Hash {
+    bytes: Vec<u8>
+}
+
+impl Hash {
+    fn new() -> Hash {
+        return Hash {
+            bytes: vec!(),
+        }
+    }
+}
+
+impl std::cmp::PartialEq for Hash {
+    fn eq(self: &Self, s2: &Self) -> bool {
+        self.bytes == s2.bytes
+    }
+}
+
+impl std::fmt::Display for Hash {
+    fn fmt(self: &Self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for byte in &self.bytes {
+            if let Err(err) = write!(f, "{:02x}", byte) {
+                return Err(err);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl std::clone::Clone for Hash {
+    fn clone(self: &Self) -> Self {
+        return Hash {
+            bytes: self.bytes.clone()
+        }
+    }
+}
+
 pub struct Block {
     index: usize,
     timestamp: DateTime<Utc>,
     data: Vec<u8>,
-    hash: Vec<u8>,
+    hash: Hash,
+    previous_hash: Hash,
+    // required by mining algorithm
     nonce: usize,
-    previous_hash: Vec<u8>,
 }
 
 pub struct Blockchain {
@@ -18,29 +56,23 @@ pub struct Blockchain {
     chain: Vec<Block>,
 }
 
-fn hash_hex(hash: &Vec<u8>) -> String {
-    let mut hex = String::from("");
-    for byte in hash {
-        hex = format!("{}{:02x}", hex, byte);
-    }
-    hex
-}
-
-fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous_hash: &Vec<u8>, nonce: usize) -> Vec<u8> {
+fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous_hash: &Hash, nonce: usize) -> Hash {
     let mut hasher = Sha256::new();
 
     // maybe we can do the same, faster, without format!() ?
     hasher.update(format!("{}", index));
     hasher.update(format!("{}", timestamp));
     hasher.update(format!("{:?}", data));
-    hasher.update(format!("{:?}", previous_hash));
+    hasher.update(format!("{}", previous_hash));
     hasher.update(format!("{}", nonce));
     let res = hasher.finalize();
-    return res[..].to_vec();
+    return Hash{
+        bytes: res[..].to_vec(),
+    };
 }
 
 impl Block {
-    fn new(index: usize, timestamp: DateTime<Utc>, data: Vec<u8>, previous_hash: Vec<u8>) -> Self {
+    fn new(index: usize, timestamp: DateTime<Utc>, data: Vec<u8>, previous_hash: Hash) -> Self {
         let nonce = 0usize;
         let hash = compute_hash(index, timestamp, &data, &previous_hash, nonce);
         Block {
@@ -53,12 +85,12 @@ impl Block {
         }
     }
 
-    fn compute_hash(self: &Self) -> Vec<u8> {
+    fn compute_hash(self: &Self) -> Hash {
         compute_hash(self.index, self.timestamp, &self.data, &self.previous_hash, self.nonce)
     }
 
     fn mine(self: &mut Self, rng: &mut ThreadRng, difficulty: usize) -> bool {
-        while !do_bytes_start_with_nth_zeros(&self.hash, difficulty) {
+        while !do_bytes_start_with_nth_zeros(&self.hash.bytes, difficulty) {
             self.nonce = rng.next_u64() as usize;
             self.hash = self.compute_hash();
         }
@@ -84,7 +116,7 @@ impl Blockchain {
     pub fn new() -> Self {
         Blockchain {
             rng: rand::thread_rng(),
-            chain: vec![Block::new(0, Utc::now(), vec!(), vec!())],
+            chain: vec![Block::new(0, Utc::now(), vec!(), Hash::new())],
         }
     }
 
@@ -105,14 +137,14 @@ impl Blockchain {
         for block in &self.chain[1..] {
             let bhash = block.compute_hash();
             if block.hash != bhash {
-                println!("block {} has invalid hash {}", block.index, hash_hex(&bhash));
+                println!("block {} has invalid hash {}", block.index, block.hash);
                 return false;
             }
 
             if block.previous_hash != prev.hash {
                 println!("block {} has different previous_hash", block.index);
-                println!("     prev.hash           {}", hash_hex(&prev.hash));
-                println!("     block.previous_hash {}", hash_hex(&block.previous_hash));
+                println!("     prev.hash           {}", prev.hash);
+                println!("     block.previous_hash {}", block.previous_hash);
                 return false;
             }
 
@@ -128,8 +160,8 @@ impl Blockchain {
             println!("block: index         = {}", block.index);
             println!("       timestamp     = {}", block.timestamp);
             println!("       data          = {:?}", block.data);
-            println!("       previous_hash = {}", hash_hex(&block.previous_hash));
-            println!("       hash          = {}", hash_hex(&block.hash));
+            println!("       previous_hash = {}", block.previous_hash);
+            println!("       hash          = {}", block.hash);
             println!();
         }
 
