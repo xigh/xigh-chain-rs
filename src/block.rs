@@ -27,6 +27,10 @@ pub struct Block {
 }
 
 impl Block {
+    pub fn zero() -> Self {
+        Self::new(0, Utc::now(), vec![], Hash::new())
+    }
+
     pub fn new(index: usize, timestamp: DateTime<Utc>, data: Vec<u8>, previous_hash: Hash) -> Self {
         // let nonce = 0usize;
         let hash = compute_hash(index, timestamp, &data, &previous_hash); // , nonce);

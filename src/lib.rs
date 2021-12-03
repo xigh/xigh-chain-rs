@@ -18,7 +18,7 @@ impl Blockchain {
     pub fn new() -> Self {
         Blockchain {
             // rng: rand::thread_rng(),
-            chain: vec![Block::new(0, Utc::now(), vec!(), Hash::new())],
+            chain: vec![Block::zero()],
         }
     }
 
