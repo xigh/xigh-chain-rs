@@ -3,7 +3,7 @@ use sha2::{Sha256, Digest};
 
 use crate::Hash;
 
-fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous_hash: &Hash, nonce: usize) -> Hash {
+fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous_hash: &Hash) -> Hash { //, nonce: usize) -> Hash {
     let mut hasher = Sha256::new();
 
     // maybe we can do the same, faster, without format!() ?
@@ -11,7 +11,7 @@ fn compute_hash(index: usize, timestamp: DateTime<Utc>, data: &Vec<u8>, previous
     hasher.update(format!("{}", timestamp));
     hasher.update(format!("{:?}", data));
     hasher.update(format!("{}", previous_hash));
-    hasher.update(format!("{}", nonce));
+    // hasher.update(format!("{}", nonce));
     let res = hasher.finalize();
     Hash::from(res[..].to_vec())
 }
@@ -23,25 +23,25 @@ pub struct Block {
     hash: Hash,
     previous_hash: Hash,
     // required by mining algorithm
-    nonce: usize,
+    // nonce: usize,
 }
 
 impl Block {
     pub fn new(index: usize, timestamp: DateTime<Utc>, data: Vec<u8>, previous_hash: Hash) -> Self {
-        let nonce = 0usize;
-        let hash = compute_hash(index, timestamp, &data, &previous_hash, nonce);
+        // let nonce = 0usize;
+        let hash = compute_hash(index, timestamp, &data, &previous_hash); // , nonce);
         Block {
             index,
             timestamp,
             data,
             hash,
-            nonce,
+            // nonce,
             previous_hash,
         }
     }
 
     pub fn compute_hash(self: &Self) -> Hash {
-        compute_hash(self.index, self.timestamp, &self.data, &self.previous_hash, self.nonce)
+        compute_hash(self.index, self.timestamp, &self.data, &self.previous_hash) // , self.nonce)
     }
 
     pub fn index(self: &Self) -> usize {
